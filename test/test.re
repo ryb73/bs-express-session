@@ -1,40 +1,45 @@
 open Express;
 
-ExpressSession.make @@ ExpressSession.opts
-    secret::"secret" name::"sess" proxy::false resave::true
-    rolling::false saveUninitialized::true
-    genid::(fun req => Request.hostname req)
-    cookie::(ExpressSession.cookieOpts
-        domain::"a.com" httpOnly::false maxAge::10
-        path::"/web" secure::true ()
-    )
-();
+ExpressSession.make(ExpressSession.opts(
+    ~secret="secret", ~name="sess", ~proxy=false, ~resave=true,
+    ~rolling=false, ~saveUninitialized=true,
+    ~genid=(req) => Request.hostname(req),
+    ~cookie=ExpressSession.cookieOpts(
+        ~domain="a.com",
+        ~httpOnly=false,
+        ~maxAge=10,
+        ~path="/web",
+        ~secure=true, ()
+    ), ()
+));
 
+[@autoserialize]
 type session = {
-    id: int,
-    name: string
-} [@@autoserialize];
+  id: int,
+  name: string
+};
+
 module Session = ExpressSession.Make({
-    type t = session [@@autoserialize];
+    [@autoserialize]
+    type t = session;
     let key = "data";
 });
 
-let app = App.make ();
+let app = App.make();
 
-App.get app path::"/" @@ Middleware.from @@ fun req resp _ => {
-    Session.set req {
+App.get(app, ~path="/", Middleware.from((req, resp, _) => {
+    Session.set(req, {
         id: 24,
         name: "me"
-    };
+    });
 
-    let d = Session.get req;
+    let d = Session.get(req);
     switch d {
-        | None => Js.log "none"
-        | Some { id, name } => {
-            Js.log id;
-            Js.log name;
-        }
+        | None => Js.log("none")
+        | Some({id, name}) =>
+            Js.log(id);
+            Js.log(name)
     };
 
-    Response.sendString resp "ok";
-};
+    Response.sendString(resp, "ok")
+}));
