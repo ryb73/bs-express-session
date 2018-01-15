@@ -51,7 +51,7 @@ let opts ::secret ::cookie=? ::genid=? ::name=? ::proxy=? ::resave=?
 external make : opts => Middleware.t = "express-session" [@@bs.module];
 
 module type Config = {
-    type t;
+    type t [@@autoserialize];
     let key : string;
 };
 

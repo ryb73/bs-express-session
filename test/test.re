@@ -13,9 +13,9 @@ ExpressSession.make @@ ExpressSession.opts
 type session = {
     id: int,
     name: string
-};
+} [@@autoserialize];
 module Session = ExpressSession.Make({
-    type t = session;
+    type t = session [@@autoserialize];
     let key = "data";
 });
 
