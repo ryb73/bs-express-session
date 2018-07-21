@@ -61,28 +61,38 @@ module type Config = {
 };
 
 module Make = (C: Config) => {
-    let _decodeSession = (req) => {
-        let reqData = Request.asJsonObject(req);
-        let optSession = Js.Dict.get(reqData, "session");
-        switch optSession {
-            | None => None
-            | Some(jsonSession) => Js.Json.decodeObject(jsonSession)
-        }
-    };
+    type _session;
+    let _getSession = (req) =>
+        Request.asJsonObject(req)
+            |> flip(Js.Dict.get, "session");
+
+    let _getSessionDict = (req) =>
+        _getSession(req)
+            |> flip(bind, Js.Json.decodeObject);
+
+    let _getSessionObj = (req) : _session =>
+        _getSession(req)
+            |> Obj.magic;
 
     let set = (req, value) =>
-        switch (_decodeSession(req)) {
-            | None => false
-            | Some(session) =>
-                Js.Dict.set(session, C.key, C.t__to_json(value));
-                true
-        };
+        _getSessionDict(req)
+            |> map((session) => Js.Dict.set(session, C.key, C.t__to_json(value)))
+            != None;
 
     let get = (req) =>
-        switch (_decodeSession(req)) {
-            | None => None
-            | Some(session) =>
-              Js.Dict.get(session, C.key)
-                  |> flip(bind, (json) => _resultToOpt(C.t__from_json(json)))
-        };
+        _getSessionDict(req)
+            |> flip(bind, flip(Js.Dict.get, C.key))
+            |> flip(bind, (json) => _resultToOpt(C.t__from_json(json)));
+
+    [@bs.send.pipe: _session] external _destroy : ((Js.nullable(exn)) => unit) => unit = "destroy";
+    let destroy = (req) =>
+        Js.Promise.make((~resolve, ~reject) => {
+            _getSessionObj(req)
+                |> _destroy((exn) => {
+                    switch (Js.Nullable.to_opt(exn)) {
+                        | Some(exn) => [@bs] reject(exn)
+                        | _ => let u = (); [@bs] resolve(u)
+                    };
+                });
+        });
 };

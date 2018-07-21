@@ -22,5 +22,8 @@
   },
   "devDependencies": {
     "bs-express": "reasonml-community/bs-express"
+  },
+  "dependencies": {
+    "express-session": "^1.15.6"
   }
 }

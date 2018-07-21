@@ -41,5 +41,7 @@ App.get(app, ~path="/", Middleware.from((req, resp, _) => {
             Js.log(name)
     };
 
-    Response.sendString(resp, "ok")
+    Session.destroy(req);
+
+    Response.sendString(resp, "ok");
 }));

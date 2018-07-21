@@ -1,6 +1,9 @@
 {
     "name" : "bs-express-session",
-    "bs-dependencies": [ "bs-express", "bs-batteries" ],
+    "bs-dependencies": [
+        "bs-express",
+        "bs-batteries"
+    ],
     "sources" : [
         { "dir" : "src" },
         {
