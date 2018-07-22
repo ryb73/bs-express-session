@@ -1,6 +1,6 @@
 open Express;
 open Option;
-open Js.Result;
+open Belt.Result;
 
 let flip = BatPervasives.flip;
 
@@ -13,50 +13,30 @@ let _resultToOpt = (r) =>
 type cookieOpts;
 
 [@bs.obj]
-external _cookieOpts : (
-    ~domain: string=?, ~httpOnly: Js.boolean=?, ~maxAge: int=?,
-    ~path: string=?, ~secure: Js.boolean=?, unit
+external cookieOpts : (
+    ~domain: string=?, ~httpOnly: bool=?, ~maxAge: int=?,
+    ~path: string=?, ~secure: bool=?, unit
 ) => cookieOpts = "";
-
-let _maybeJsBool = (opt) =>
-    switch opt {
-        | Some(b) => Some(Js.Boolean.to_js_boolean(b))
-        | None => None
-    };
-
-let cookieOpts = (~domain=?, ~httpOnly=?, ~maxAge=?, ~path=?, ~secure=?) =>
-    _cookieOpts(~domain?, ~maxAge?, ~path?, ~httpOnly=?_maybeJsBool(httpOnly),
-        ~secure=?_maybeJsBool(secure));
 
 type opts;
 
 [@bs.obj]
-external _opts : (
+external opts : (
     ~secret: string,
     ~cookie: cookieOpts=?,
     ~genid: Request.t => string=?,
     ~name: string=?,
-    ~proxy: Js.boolean=?,
-    ~resave: Js.boolean=?,
-    ~rolling: Js.boolean=?,
-    ~saveUninitialized: Js.boolean=?,
+    ~proxy: bool=?,
+    ~resave: bool=?,
+    ~rolling: bool=?,
+    ~saveUninitialized: bool=?,
     unit
 ) => opts = "";
-
-let opts = (
-    ~secret, ~cookie=?, ~genid=?, ~name=?, ~proxy=?,
-    ~resave=?, ~rolling=?, ~saveUninitialized=?
-) =>
-    _opts(~secret, ~cookie?, ~genid?, ~name?,
-        ~proxy=?_maybeJsBool(proxy), ~resave=?_maybeJsBool(resave),
-        ~rolling=?_maybeJsBool(rolling),
-        ~saveUninitialized=?_maybeJsBool(saveUninitialized)
-    );
 
 [@bs.module] external make : opts => Middleware.t = "express-session";
 
 module type Config = {
-    [@autoserialize] type t;
+    [@decco] type t;
     let key: string;
 };
 
@@ -76,7 +56,7 @@ module Make = (C: Config) => {
 
     let set = (req, value) =>
         _getSessionDict(req)
-            |> map((session) => Js.Dict.set(session, C.key, C.t__to_json(value)))
+            |> Option.map((session) => Js.Dict.set(session, C.key, C.t__to_json(value)))
             != None;
 
     let get = (req) =>
@@ -89,7 +69,7 @@ module Make = (C: Config) => {
         Js.Promise.make((~resolve, ~reject) => {
             _getSessionObj(req)
                 |> _destroy((exn) => {
-                    switch (Js.Nullable.to_opt(exn)) {
+                    switch (Js.Nullable.toOption(exn)) {
                         | Some(exn) => [@bs] reject(exn)
                         | _ => let u = (); [@bs] resolve(u)
                     };

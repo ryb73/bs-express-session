@@ -13,14 +13,14 @@ ExpressSession.make(ExpressSession.opts(
     ), ()
 ));
 
-[@autoserialize]
+[@decco]
 type session = {
   id: int,
   name: string
 };
 
 module Session = ExpressSession.Make({
-    [@autoserialize]
+    [@decco]
     type t = session;
     let key = "data";
 });
