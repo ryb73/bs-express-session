@@ -56,13 +56,13 @@ module Make = (C: Config) => {
 
     let set = (req, value) =>
         _getSessionDict(req)
-            |> Option.map((session) => Js.Dict.set(session, C.key, C.t__to_json(value)))
+            |> Option.map((session) => Js.Dict.set(session, C.key, C.t_encode(value)))
             != None;
 
     let get = (req) =>
         _getSessionDict(req)
             |> flip(bind, flip(Js.Dict.get, C.key))
-            |> flip(bind, (json) => _resultToOpt(C.t__from_json(json)));
+            |> flip(bind, (json) => _resultToOpt(C.t_decode(json)));
 
     [@bs.send.pipe: _session] external _destroy : ((Js.nullable(exn)) => unit) => unit = "destroy";
     let destroy = (req) =>
