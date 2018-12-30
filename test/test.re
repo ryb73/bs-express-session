@@ -27,7 +27,7 @@ module Session = ExpressSession.Make({
 
 let app = App.make();
 
-App.get(app, ~path="/", Middleware.from((req, resp, _) => {
+App.get(app, ~path="/", Middleware.from((_, req, resp) => {
     Session.set(req, {
         id: 24,
         name: "me"
@@ -43,5 +43,5 @@ App.get(app, ~path="/", Middleware.from((req, resp, _) => {
 
     Session.destroy(req);
 
-    Response.sendString(resp, "ok");
+    Response.sendString("ok", resp);
 }));

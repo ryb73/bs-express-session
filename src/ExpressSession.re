@@ -1,14 +1,11 @@
 open Express;
-open Option;
-open Belt.Result;
 
-let flip = BatPervasives.flip;
-
-let _resultToOpt = (r) =>
+let _resultToOpt = (r) => Belt.Result.(
     switch r {
         | Ok(v) => Some(v)
         | _ => None
-    };
+    }
+);
 
 type cookieOpts;
 
@@ -44,35 +41,38 @@ module Make = (C: Config) => {
     type _session;
     let _getSession = (req) =>
         Request.asJsonObject(req)
-            |> flip(Js.Dict.get, "session");
+        -> Js.Dict.get("session");
 
-    let _getSessionDict = (req) =>
+    let _getSessionDict = (req) => Belt.Option.(
         _getSession(req)
-            |> flip(bind, Js.Json.decodeObject);
+        -> flatMap(Js.Json.decodeObject)
+    );
 
     let _getSessionObj = (req) : _session =>
         _getSession(req)
-            |> Obj.magic;
+        |> Obj.magic;
 
-    let set = (req, value) =>
+    let set = (req, value) => Belt.Option.(
         _getSessionDict(req)
-            |> Option.map((session) => Js.Dict.set(session, C.key, C.t_encode(value)))
-            != None;
+        -> map((session) => Js.Dict.set(session, C.key, C.t_encode(value)))
+        != None
+    );
 
-    let get = (req) =>
+    let get = (req) => Belt.Option.(
         _getSessionDict(req)
-            |> flip(bind, flip(Js.Dict.get, C.key))
-            |> flip(bind, (json) => _resultToOpt(C.t_decode(json)));
+        -> flatMap(dict => Js.Dict.get(dict, C.key))
+        -> flatMap((json) => _resultToOpt(C.t_decode(json)))
+    );
 
     [@bs.send.pipe: _session] external _destroy : ((Js.nullable(exn)) => unit) => unit = "destroy";
     let destroy = (req) =>
         Js.Promise.make((~resolve, ~reject) => {
             _getSessionObj(req)
-                |> _destroy((exn) => {
-                    switch (Js.Nullable.toOption(exn)) {
-                        | Some(exn) => [@bs] reject(exn)
-                        | _ => let u = (); [@bs] resolve(u)
-                    };
-                });
+            |> _destroy((exn) => {
+                switch (Js.Nullable.toOption(exn)) {
+                    | Some(exn) => [@bs] reject(exn)
+                    | _ => let u = (); [@bs] resolve(u)
+                };
+            });
         });
 };

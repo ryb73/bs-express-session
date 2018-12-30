@@ -1,13 +1,14 @@
 {
   "name": "bs-express-session",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "description": "BuckleScript bindings for express-session",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "npm run clean && bsb -make-world",
     "watch": "npm run clean && bsb -make-world -w",
-    "clean": "rm -rf lib/ && bsb -clean-world"
+    "clean": "rm -rf lib/ && bsb -clean-world",
+    "postinstall": "[ ! -f package-links.json ] || ppl link-file"
   },
   "keywords": [],
   "license": "MIT",
@@ -18,9 +19,11 @@
     "url": "git@github.com:ryb73/bs-express-session.git"
   },
   "peerDependencies": {
-    "bs-platform": "^3.1.5"
+    "bs-platform": "^4.0.0"
   },
   "dependencies": {
-    "express-session": "^1.15.6"
+    "express-session": "^1.15.6",
+    "decco": "0.0.1",
+    "bs-express": "0.9.0"
   }
 }
