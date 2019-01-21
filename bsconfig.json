@@ -1,8 +1,8 @@
 {
-    "name" : "bs-express-session",
+    "name" : "@ryb73/bs-express-session",
     "bs-dependencies": [
         "bs-express",
-        "decco"
+        "@ryb73/decco"
     ],
     "sources" : [
         { "dir" : "src" },

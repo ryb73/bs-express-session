@@ -1,2 +1,2 @@
 # bs-express-session
-BuckleScript bindings for express-session
+Incomplete BuckleScript bindings for express-session
