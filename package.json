@@ -13,7 +13,7 @@
   "files": [
     "bsconfig.json",
     "/src",
-    "/lib/js"
+    "/lib/js/src"
   ],
   "keywords": [],
   "license": "MIT",
