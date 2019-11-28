@@ -28,5 +28,8 @@
     "bs-express": "^1.0.0",
     "decco": "^1.0.0",
     "express-session": "^1.16.2"
+  },
+  "devDependencies": {
+    "bs-platform": "^6.0.0"
   }
 }
