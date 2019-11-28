@@ -31,7 +31,8 @@ App.get(app, ~path="/", Middleware.from((_, req, resp) => {
     Session.set(req, {
         id: 24,
         name: "me"
-    });
+    })
+    |> ignore;
 
     let d = Session.get(req);
     switch d {
@@ -41,7 +42,7 @@ App.get(app, ~path="/", Middleware.from((_, req, resp) => {
             Js.log(name)
     };
 
-    Session.destroy(req);
+    Session.destroy(req) |> ignore;
 
     Response.sendString("ok", resp);
 }));
