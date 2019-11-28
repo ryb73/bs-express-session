@@ -2,7 +2,7 @@
     "name" : "@ryb73/bs-express-session",
     "bs-dependencies": [
         "bs-express",
-        "@ryb73/decco"
+        "decco",
     ],
     "sources" : [
         { "dir" : "src" },
@@ -11,7 +11,10 @@
             "type": "dev"
         }
     ],
-    "ppx-flags": [ "ppx_decco" ],
+    "ppx-flags": [ "decco/ppx" ],
     "refmt": 3,
-    "bsc-flags": [ "-w -10", "-bs-super-errors" ]
+    "warnings": {
+        "number": "+A-4-40-42",
+    },
+    "bsc-flags": [ "-bs-super-errors" ]
 }

@@ -1,11 +1,10 @@
 open Express;
 
-let _resultToOpt = (r) => Belt.Result.(
+let resultToOpt = (r) =>
     switch r {
-        | Ok(v) => Some(v)
-        | _ => None
-    }
-);
+        | Belt.Result.Ok(v) => Some(v)
+        | Error(_) => None
+    };
 
 type cookieOpts;
 
@@ -61,7 +60,7 @@ module Make = (C: Config) => {
     let get = (req) => Belt.Option.(
         _getSessionDict(req)
         -> flatMap(dict => Js.Dict.get(dict, C.key))
-        -> flatMap((json) => _resultToOpt(C.t_decode(json)))
+        -> flatMap((json) => resultToOpt(C.t_decode(json)))
     );
 
     [@bs.send.pipe: _session] external _destroy : ((Js.nullable(exn)) => unit) => unit = "destroy";
